@@ -1,0 +1,17 @@
+# Local Word documents and PDFs
+*.[dD][oO][cC]
+*.[dD][oO][cC][xX]
+*.[pP][dD][fF]
+
+# Dependencies and generated output
+node_modules/
+dist/
+*.tsbuildinfo
+*.log
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.vscode/
+.DS_Store

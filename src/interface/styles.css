@@ -1,0 +1,25 @@
+/* Owner: Figuelia Ya'Sin. Shared styles for the starter views. */
+:root { font-family: system-ui, sans-serif; color: #182d37; background: #f5f7f8; line-height: 1.6; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: #185f57; text-underline-offset: .2em; }
+header { padding: 1.4rem max(1.25rem, calc((100vw - 1100px) / 2)); background: white; border-bottom: 1px solid #dbe3e6; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+.brand { color: #182d37; font-size: 1.3rem; font-weight: 750; text-decoration: none; }
+nav { display: flex; flex-wrap: wrap; gap: .4rem; }
+nav a { padding: .5rem .75rem; border-radius: .4rem; text-decoration: none; }
+nav a[aria-current="page"] { background: #e2efeb; color: #174e47; font-weight: 650; }
+main { max-width: 1100px; margin: 3rem auto; padding: 0 1.25rem; min-height: 60vh; }
+section { background: white; border: 1px solid #dbe3e6; border-radius: .7rem; padding: clamp(1.4rem, 5vw, 4rem); }
+h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.2; max-width: 20ch; margin: .5rem 0 1.4rem; }
+p { max-width: 65ch; }
+.eyebrow { color: #185f57; font-weight: 650; }
+.notice { color: #465b65; }
+.button { display: inline-block; padding: .7rem 1.1rem; background: #185f57; color: white; border-radius: .4rem; text-decoration: none; margin-top: 1rem; }
+footer { max-width: 1100px; margin: 0 auto; padding: 1.25rem; color: #465b65; }
+:focus-visible { outline: 3px solid #89520b; outline-offset: 4px; }
+.skip-link { position: absolute; left: 1rem; top: -6rem; background: white; padding: .75rem; z-index: 1; }
+.skip-link:focus { top: 1rem; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: .6rem; border-bottom: 1px solid #dbe3e6; }
+@media (max-width: 600px) { header { align-items: flex-start; gap: .75rem; } nav { width: 100%; } nav a { padding: .5rem; } main { margin: 1.5rem auto; } }
