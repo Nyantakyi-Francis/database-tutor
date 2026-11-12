@@ -104,7 +104,7 @@ Francis also owns README.md and coordinates requirements/documentation. Figuelia
 
 src/shared/types.ts defines Lesson, SQLExercise, SQLQueryResult, Quiz, QuizQuestion, QuizResult, and StudentProgress. IDs are stable keys, not display titles or array positions. Coordinate IDs before writing content. SQL errors use error with empty columns/rows. Quiz scores are numbers correct out of totalQuestions; completion timestamps use ISO 8601. StudentProgress version 1 stores completedLessonIds and latestQuizResults keyed by quiz ID.
 
-The practice database is disposable and separate from progress. schoolSchema and content arrays are intentionally empty. quizScoring.ts and progressStorage.ts do not implement scoring or persistence yet. The results table and optional hint disclosure are small presentation components ready for their owners to connect.
+The practice database is disposable and separate from progress. schoolSchema, exercises, and quizzes remain empty. lessonData.ts contains six Sprint 1 drafts with proposed IDs; the Lessons view does not render them yet. quizScoring.ts and progressStorage.ts do not implement scoring or persistence yet. The results table and optional hint disclosure are small presentation components ready for their owners to connect.
 
 ## SQL runtime
 
@@ -142,7 +142,7 @@ If repository settings and the GitHub plan permit it, configure a main ruleset r
 
 Choose a static host as a team. Build with npm ci and npm run build, then publish dist/. Hash navigation avoids server rewrite requirements; relative asset paths support hosting in a subdirectory. Verify the actual hosted WASM request and query execution before accepting deployment. No hosting service is configured or deployed by this setup.
 
-Lessons, exercises, quizzes, scoring, and saved progress remain unimplemented. The progress view describes planned behavior; it does not currently save anything. Browser-local progress will belong to the same browser and site and can be lost when browser data is cleared. No real student data should be included.
+Lesson drafts are available in source. Lesson rendering, exercises, quizzes, scoring, and saved progress remain unimplemented. The progress view describes planned behavior; it does not currently save anything. Browser-local progress will belong to the same browser and site and can be lost when browser data is cleared. No real student data should be included.
 
 ## Sprint outline
 
@@ -153,6 +153,53 @@ Lessons, exercises, quizzes, scoring, and saved progress remain unimplemented. T
 
 The foundation alone does not complete Sprint 1: its storage demonstration and deployed runtime check remain team tasks.
 
+## Francis's Sprint 1 lesson drafts (9–15 November 2026)
+
+The six drafts in `src/lessons/lessonData.ts` address JHS learners with basic computer skills and no assumed database knowledge. Each draft contains a plain explanation, a fictional school example, and a short check question with its answer. Read the explanation in `content`, followed by the example and check in `example`. These checks are reading prompts, separate from the three scored quizzes planned for C3.
+
+| Proposed stable ID | Topic | School example |
+| --- | --- | --- |
+| `tables` | Tables organise information into rows and columns | Separate Students and Subjects tables |
+| `records` | One row holds one record | Read Kojo's ID, name, and class together |
+| `fields` | A named field holds one kind of information | Distinguish `class_name` from its value `JHS 1B` |
+| `primary-keys` | A primary key uniquely identifies a record | Two students with the same name have different IDs |
+| `foreign-keys` | A foreign key refers to a related record | A Scores record refers to a student and a subject |
+| `relationships` | Related tables connect through matching IDs | One student has several scores; one subject has scores from several students |
+
+The drafts use the existing `Lesson` type without changing the shared contract. IDs are proposals awaiting agreement with Efehi and Victor. After agreement, preserve the IDs because saved lesson completion will refer to them. Titles can change without changing IDs.
+
+### Example data to confirm with Efehi
+
+All names and scores below are fictional teaching data. These are proposed fields, not an implemented database schema.
+
+| Table | Proposed fields | Key roles |
+| --- | --- | --- |
+| Students | `student_id`, `student_name`, `class_name` | Primary key: `student_id` |
+| Subjects | `subject_id`, `subject_name` | Primary key: `subject_id` |
+| Scores | `score_id`, `student_id`, `subject_id`, `score` | Primary key: `score_id`; foreign keys refer to Students and Subjects |
+
+The main examples use Ama Mensah (101) and Kojo Owusu (102), Mathematics (1) and ICT (2). Scores are Ama/Mathematics 78, Ama/ICT 84, and Kojo/Mathematics 65. The primary-key lesson introduces another fictional Ama Mensah (103) to show why a name does not uniquely identify a student. The foreign-key lesson uses 999 only as an example of a missing student reference.
+
+Before integration, confirm field names and example records with Efehi. With Victor, confirm lesson IDs and quiz wording, and agree the lesson-completion API. Keep persistence implementation in `src/assessment/`. The relationship lesson explains the connections without adding the optional E3 SQL JOIN exercise.
+
+### Evidence and remaining work
+
+Source inspection on 12 November 2026 found an empty `schoolSchema`, empty exercise and quiz arrays, and a progress storage module containing only the storage key. This does not establish query execution against school data, progress persistence, or hosted deployment. Historical foundation checks below describe the earlier infrastructure check.
+
+| Sprint 1 item | Current evidence or next action |
+| --- | --- |
+| S1-11: six lesson drafts | Drafts exist in `lessonData.ts`; Francis and the team still need to review the content |
+| S1-12: IDs and examples | Proposals documented above; Efehi and Victor's agreement remains pending |
+| S1-13: lesson and setup documentation | Coverage and dependencies documented here; setup commands remain in Technology and setup |
+| School query demonstration | Efehi to supply the revision, query, expected and actual rows, and check result |
+| Save/restore demonstration | Victor to supply the revision, sample progress, refresh steps, and observed restored values |
+| Hosted runtime demonstration | Figuelia and Efehi to supply the URL, revision, WASM loading result, and hosted query result |
+| S1-14: meetings and peer review | Francis to record actual participation, a teammate's reviewed pull request, and actual hours |
+
+The Lessons view still shows its preparation message. Draft data does not yet appear in the app. Sprint 2 covers rendering all six lessons, navigation, and lesson completion using Victor's agreed progress API. Meetings, attendance, teammate approval, and actual hours require the team's own records.
+
+Local checks on 12 November 2026 passed: `npm run typecheck`, `npm run build`, and `git diff --check`. A content-structure check confirmed six unique IDs matching this README, populated Lesson fields, and a fictional example followed by a check question and answer in each draft. These checks do not establish learner understanding or team approval. No browser check was run for this draft-only change; the rendered interface was not changed.
+
 ## Foundation verification (5 November 2026)
 
 Installed versions: React/React DOM 19.3.1, Vite 8.3.6, TypeScript 7.0.2, sql.js 1.15.2, @vitejs/plugin-react 6.2.1; @types/react and @types/react-dom 19.3.0, @types/sql.js 1.4.11, @types/node 26.6.6. Setup environment: Node.js 24.14.0, npm 11.9.0.
@@ -161,15 +208,8 @@ A clean npm ci, type checking, and production build passed. Playwright with Chro
 
 The Browser plugin/skill was not available, so temporary Playwright checks were used outside the repository. These checks do not cover finished learning features, other browsers, normal browser-restart persistence, GitHub Actions execution, or an externally hosted deployment. Package installation reported no vulnerabilities at setup time.
 
-## Publish the foundation
+## Submit changes for review
 
-Git already has commits, main, and origin pointing to https://github.com/Nyantakyi-Francis/database-tutor.git. The setup has not committed or pushed anything. To create the first foundation commit locally after reviewing it:
+The foundation is already on `main`. The existing `origin` points to https://github.com/Nyantakyi-Francis/database-tutor.git. Follow CONTRIBUTING.md to create a feature branch from current main, inspect the diff, run the required checks, and submit a small pull request. For Francis's lesson work, stage only the intended changes under `src/lessons/` and in `README.md`. Keep the local Word/PDF records out of Git.
 
-```sh
-git add .gitignore .github AGENTS.md CONTRIBUTING.md README.md index.html package.json package-lock.json public src tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts
-git diff --cached --stat
-git diff --cached
-git commit -m "Set up Database Tutor team foundation"
-```
-
-No remote connection command is needed. Before an authorized push, inspect git remote -v and git fetch origin, then compare git log --oneline --left-right main...origin/main. If the remote has newer commits, integrate them and rerun checks before publishing. Once synchronized and approved, git push -u origin main publishes the foundation (or use a setup branch and pull request if main is protected). Never force-push to bypass a rejected update.
+Before an authorized push, check `git remote -v`, fetch origin, and inspect incoming changes. Integrate newer main changes with the relevant owners and rerun checks. Request teammate review before merging into main.
