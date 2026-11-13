@@ -7,8 +7,9 @@ import { useProgress } from './useProgress'
 const DEMO_QUIZ = { id: 'demo-quiz', title: 'Demo quiz', totalQuestions: 4 }
 
 export default function ProgressPage() {
-  const { progress, notice, setLessonCompleted, recordQuizResult } = useProgress()
+  const { progress, notice, setLessonCompleted, recordQuizResult, reset } = useProgress()
   const [demoScore, setDemoScore] = useState(0)
+  const [confirmingReset, setConfirmingReset] = useState(false)
   const completed = new Set(progress.completedLessonIds)
   const results = Object.values(progress.latestQuizResults)
 
@@ -67,5 +68,17 @@ export default function ProgressPage() {
       </label>{' '}
       <button type="submit">Save score</button>
     </form>
+
+    <h2>Reset progress</h2>
+    {confirmingReset
+      ? <div role="group" aria-labelledby="reset-question">
+        <p id="reset-question">
+          Remove all completed lessons and quiz scores saved in this browser? This cannot be undone.
+          The SQL practice database is not affected.
+        </p>
+        <button type="button" autoFocus onClick={() => setConfirmingReset(false)}>Cancel</button>{' '}
+        <button type="button" onClick={() => { reset(); setConfirmingReset(false) }}>Yes, reset progress</button>
+      </div>
+      : <button type="button" onClick={() => setConfirmingReset(true)}>Reset progress</button>}
   </section>
 }

@@ -4,6 +4,7 @@ import {
   PROGRESS_STORAGE_KEY,
   createEmptyProgress,
   loadProgress,
+  resetProgress,
   saveProgress,
   type ProgressStorage,
 } from './progressStorage'
@@ -13,6 +14,7 @@ class MemoryStorage implements ProgressStorage {
   values = new Map<string, string>()
   getItem(key: string) { return this.values.get(key) ?? null }
   setItem(key: string, value: string) { this.values.set(key, value) }
+  removeItem(key: string) { this.values.delete(key) }
 }
 
 /** Storage that fails like a blocked or full localStorage. */
@@ -20,6 +22,7 @@ class FailingStorage implements ProgressStorage {
   constructor(private readonly error: Error) {}
   getItem(): string | null { throw this.error }
   setItem(): void { throw this.error }
+  removeItem(): void { throw this.error }
 }
 
 const lessonIds = ['tables', 'records', 'fields', 'primary-keys', 'foreign-keys', 'relationships']
@@ -178,5 +181,29 @@ describe('storage failures keep the app working', () => {
 
   it('reports a message when storage does not exist on save', () => {
     expect(saveProgress(sample, null).ok).toBe(false)
+  })
+})
+
+describe('reset', () => {
+  it('removes only the progress key, so the next load starts empty', () => {
+    const storage = new MemoryStorage()
+    storage.setItem('database-tutor:sql-practice', 'kept')
+    saveProgress(sample, storage)
+
+    expect(resetProgress(storage)).toEqual({ ok: true })
+    expect(storage.values.has(PROGRESS_STORAGE_KEY)).toBe(false)
+    expect(storage.values.get('database-tutor:sql-practice')).toBe('kept')
+    expect(loadProgress(storage, lessonIds)).toEqual({ progress: createEmptyProgress(), status: 'empty' })
+  })
+
+  it('reports a message when removing throws', () => {
+    const result = resetProgress(new FailingStorage(new DOMException('Blocked', 'SecurityError')))
+    expect(result.ok).toBe(false)
+    expect(!result.ok && result.message).toMatch(/could not be removed/)
+    expect(warn).toHaveBeenCalledOnce()
+  })
+
+  it('reports a message when storage does not exist', () => {
+    expect(resetProgress(null).ok).toBe(false)
   })
 })

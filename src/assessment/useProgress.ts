@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { lessons } from '../lessons/lessonData'
 import type { QuizResult, StudentProgress } from '../shared/types'
-import { loadProgress, saveProgress } from './progressStorage'
+import { createEmptyProgress, loadProgress, resetProgress, saveProgress } from './progressStorage'
 
 export interface ProgressNotice {
   kind: 'saved' | 'problem'
@@ -36,5 +36,14 @@ export function useProgress() {
     update({ ...progress, latestQuizResults: { ...progress.latestQuizResults, [result.quizId]: result } })
   }
 
-  return { progress, notice, setLessonCompleted, recordQuizResult }
+  /** Clears lessons and quiz scores. The page asks the student to confirm first. */
+  function reset() {
+    setProgress(createEmptyProgress())
+    const result = resetProgress()
+    setNotice(result.ok
+      ? { kind: 'saved', text: 'Progress reset. Completed lessons and quiz scores were removed.' }
+      : { kind: 'problem', text: result.message })
+  }
+
+  return { progress, notice, setLessonCompleted, recordQuizResult, reset }
 }

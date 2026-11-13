@@ -5,7 +5,7 @@ import type { QuizResult, StudentProgress } from '../shared/types'
 export const PROGRESS_STORAGE_KEY = 'database-tutor:progress:v1'
 
 /** The part of the Web Storage API this module uses. Tests pass a fake. */
-export type ProgressStorage = Pick<Storage, 'getItem' | 'setItem'>
+export type ProgressStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
 export type LoadStatus = 'restored' | 'empty' | 'invalid' | 'unavailable'
 
@@ -155,6 +155,27 @@ export function saveProgress(
       message: full
         ? 'Browser storage is full, so progress was not saved. It will be kept until you close or refresh the page.'
         : unavailableMessage,
+    }
+  }
+}
+
+/**
+ * Removes saved progress only (never the SQL practice database). Call this
+ * after the student confirms. A storage failure returns a message; it never throws.
+ */
+export function resetProgress(storage: ProgressStorage | null = getBrowserStorage()): SaveResult {
+  if (!storage) {
+    console.warn(`${LOG_PREFIX} Browser storage is not available. Nothing saved to remove.`)
+    return { ok: false, message: unavailableMessage }
+  }
+  try {
+    storage.removeItem(PROGRESS_STORAGE_KEY)
+    return { ok: true }
+  } catch (error) {
+    console.warn(`${LOG_PREFIX} Could not remove saved progress.`, error)
+    return {
+      ok: false,
+      message: 'Progress was cleared on this page, but the saved copy could not be removed. It may return after a refresh.',
     }
   }
 }
