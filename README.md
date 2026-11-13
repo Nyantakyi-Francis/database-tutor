@@ -104,7 +104,7 @@ Francis also owns README.md and coordinates requirements/documentation. Figuelia
 
 src/shared/types.ts defines Lesson, SQLExercise, SQLQueryResult, Quiz, QuizQuestion, QuizResult, and StudentProgress. IDs are stable keys, not display titles or array positions. Coordinate IDs before writing content. SQL errors use error with empty columns/rows. Quiz scores are numbers correct out of totalQuestions; completion timestamps use ISO 8601. StudentProgress version 1 stores completedLessonIds and latestQuizResults keyed by quiz ID.
 
-The practice database is disposable and separate from progress. schoolSchema, exercises, and quizzes remain empty. lessonData.ts contains six Sprint 1 drafts with proposed IDs; the Lessons view does not render them yet. quizScoring.ts and progressStorage.ts do not implement scoring or persistence yet. The results table and optional hint disclosure are small presentation components ready for their owners to connect.
+The practice database is disposable and separate from progress. schoolSchema, exercises, and quizzes remain empty. lessonData.ts contains six Sprint 1 drafts with agreed IDs (reported by Francis on 13 November 2026); the Lessons view does not render them yet. quizScoring.ts and progressStorage.ts do not implement scoring or persistence yet. The results table and optional hint disclosure are small presentation components ready for their owners to connect.
 
 ## SQL runtime
 
@@ -157,7 +157,7 @@ The foundation alone does not complete Sprint 1: its storage demonstration and d
 
 The six drafts in `src/lessons/lessonData.ts` address JHS learners with basic computer skills and no assumed database knowledge. Each draft contains a plain explanation, a fictional school example, and a short check question with its answer. Read the explanation in `content`, followed by the example and check in `example`. These checks are reading prompts, separate from the three scored quizzes planned for C3.
 
-| Proposed stable ID | Topic | School example |
+| Agreed stable ID | Topic | School example |
 | --- | --- | --- |
 | `tables` | Tables organise information into rows and columns | Separate Students and Subjects tables |
 | `records` | One row holds one record | Read Kojo's ID, name, and class together |
@@ -166,13 +166,13 @@ The six drafts in `src/lessons/lessonData.ts` address JHS learners with basic co
 | `foreign-keys` | A foreign key refers to a related record | A Scores record refers to a student and a subject |
 | `relationships` | Related tables connect through matching IDs | One student has several scores; one subject has scores from several students |
 
-The drafts use the existing `Lesson` type without changing the shared contract. IDs are proposals awaiting agreement with Efehi and Victor. After agreement, preserve the IDs because saved lesson completion will refer to them. Titles can change without changing IDs.
+The drafts use the existing `Lesson` type without changing the shared contract. Francis confirmed on 13 November 2026 that Efehi and Victor agreed all six IDs. Preserve these IDs because saved lesson completion will refer to them. Titles can change without changing IDs.
 
-### Example data to confirm with Efehi
+### Agreed lesson example data
 
-All names and scores below are fictional teaching data. These are proposed fields, not an implemented database schema.
+All names and scores below are fictional teaching data. Francis confirmed on 13 November 2026 that Efehi agreed the field names, keys, and sample records. This agreement does not establish an implemented database schema.
 
-| Table | Proposed fields | Key roles |
+| Table | Agreed example fields | Key roles |
 | --- | --- | --- |
 | Students | `student_id`, `student_name`, `class_name` | Primary key: `student_id` |
 | Subjects | `subject_id`, `subject_name` | Primary key: `subject_id` |
@@ -180,7 +180,7 @@ All names and scores below are fictional teaching data. These are proposed field
 
 The main examples use Ama Mensah (101) and Kojo Owusu (102), Mathematics (1) and ICT (2). Scores are Ama/Mathematics 78, Ama/ICT 84, and Kojo/Mathematics 65. The primary-key lesson introduces another fictional Ama Mensah (103) to show why a name does not uniquely identify a student. The foreign-key lesson uses 999 only as an example of a missing student reference.
 
-Before integration, confirm field names and example records with Efehi. With Victor, confirm lesson IDs and quiz wording, and agree the lesson-completion API. Keep persistence implementation in `src/assessment/`. The relationship lesson explains the connections without adding the optional E3 SQL JOIN exercise.
+Lesson IDs and example data are agreed as reported above. Before integration, coordinate quiz wording and the lesson-completion API with Victor. Keep persistence implementation in `src/assessment/`. The relationship lesson explains the connections without adding the optional E3 SQL JOIN exercise.
 
 ### Evidence and remaining work
 
@@ -188,15 +188,15 @@ Source inspection on 12 November 2026 found an empty `schoolSchema`, empty exerc
 
 | Sprint 1 item | Current evidence or next action |
 | --- | --- |
-| S1-11: six lesson drafts | Drafts exist in `lessonData.ts`; Francis and the team still need to review the content |
-| S1-12: IDs and examples | Proposals documented above; Efehi and Victor's agreement remains pending |
-| S1-13: lesson and setup documentation | Coverage and dependencies documented here; setup commands remain in Technology and setup |
-| School query demonstration | Efehi to supply the revision, query, expected and actual rows, and check result |
-| Save/restore demonstration | Victor to supply the revision, sample progress, refresh steps, and observed restored values |
-| Hosted runtime demonstration | Figuelia and Efehi to supply the URL, revision, WASM loading result, and hosted query result |
-| S1-14: meetings and peer review | Francis to record actual participation, a teammate's reviewed pull request, and actual hours |
+| S1-11: six lesson drafts | Complete as drafts: all six topics include explanations, fictional school examples, and check questions with answers. Full team content review is not recorded. |
+| S1-12: IDs and examples | Complete by Francis's report on 13 November: Efehi and Victor agreed the six IDs; Efehi agreed all example fields, keys, and sample records. |
+| S1-13: lesson and setup documentation | Coverage, IDs, setup, and remaining work documented. Collection of query, storage, and deployment evidence remains pending. |
+| School query demonstration | Pending, confirmed by Francis on 13 November. Efehi to supply the revision, query, expected and actual rows, and check result. |
+| Save/restore demonstration | Pending, confirmed by Francis on 13 November. Victor to supply the revision, sample progress, refresh steps, and observed restored values. |
+| Hosted runtime demonstration | App not published, confirmed by Francis on 13 November. Figuelia leads deployment; hosted WASM and query checks remain pending with Efehi. |
+| S1-14: meetings and peer review | Francis confirmed attendance at planning and standup. Teammate pull request review is pending. About 15 actual hours reported across Sprint 1 so far, against 12 estimated hours; no task-level breakdown supplied. |
 
-The Lessons view still shows its preparation message. Draft data does not yet appear in the app. Sprint 2 covers rendering all six lessons, navigation, and lesson completion using Victor's agreed progress API. Meetings, attendance, teammate approval, and actual hours require the team's own records.
+The Lessons view still shows its preparation message. Draft data does not yet appear in the app. Sprint 2 covers rendering all six lessons, navigation, and lesson completion using Victor's agreed progress API. The status above records Francis's answers on 13 November 2026; teammate agreement and attendance were not independently verified. Actual hours are approximate and are not a final sprint total.
 
 Local checks on 12 November 2026 passed: `npm run typecheck`, `npm run build`, and `git diff --check`. A content-structure check confirmed six unique IDs matching this README, populated Lesson fields, and a fictional example followed by a check question and answer in each draft. These checks do not establish learner understanding or team approval. No browser check was run for this draft-only change; the rendered interface was not changed.
 

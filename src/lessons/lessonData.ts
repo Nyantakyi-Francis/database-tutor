@@ -1,8 +1,8 @@
 import type { Lesson } from '../shared/types'
 
 // Owner: Nyantakyi Francis. Sprint 1 drafts for JHS beginners.
-// IDs and example field names await coordination with database and assessment owners.
-// Keep these IDs stable once agreed: saved progress will refer to them.
+// Francis reports IDs agreed with Efehi and Victor, and examples agreed with Efehi (13 Nov 2026).
+// Keep these agreed IDs stable: saved progress will refer to them.
 export const lessons: Lesson[] = [
   {
     id: 'tables',
