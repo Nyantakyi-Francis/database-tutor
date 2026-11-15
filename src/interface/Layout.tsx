@@ -6,7 +6,10 @@ export default function Layout({ activePage, children }: {
   children: ReactNode
 }) {
   return <>
-    <a className="skip-link" href="#main-content">Skip to content</a>
+    <a className="skip-link" href="#main-content" onClick={event => {
+      event.preventDefault()
+      document.getElementById('main-content')?.focus()
+    }}>Skip to content</a>
     <header>
       <a className="brand" href="#home">Database Tutor</a>
       <Navigation activePage={activePage} />
