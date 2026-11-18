@@ -6,6 +6,7 @@ import {
   loadProgress,
   resetProgress,
   saveProgress,
+  setLessonCompletion,
   type ProgressStorage,
 } from './progressStorage'
 
@@ -79,6 +80,29 @@ describe('save and restore', () => {
     expect(loaded.status).toBe('restored')
     expect(loaded.progress.completedLessonIds).toEqual(['tables'])
     expect(loaded.progress.latestQuizResults).toEqual(sample.latestQuizResults)
+    expect(warn).toHaveBeenCalledOnce()
+  })
+})
+
+describe('marking a lesson complete', () => {
+  it('adds a known lesson once, even when marked twice', () => {
+    const first = setLessonCompletion(sample, 'fields', true, lessonIds)
+    if (!first.ok) throw new Error('expected ok')
+    const second = setLessonCompletion(first.progress, 'fields', true, lessonIds)
+    if (!second.ok) throw new Error('expected ok')
+    expect(second.progress.completedLessonIds).toEqual(['tables', 'records', 'fields'])
+    expect(sample.completedLessonIds).toEqual(['tables', 'records'])
+  })
+
+  it('removes a lesson marked incomplete', () => {
+    const result = setLessonCompletion(sample, 'tables', false, lessonIds)
+    expect(result).toEqual({ ok: true, progress: { ...sample, completedLessonIds: ['records'] } })
+  })
+
+  it('rejects an unknown lesson ID and leaves progress unchanged', () => {
+    const result = setLessonCompletion(sample, 'old-lesson', true, lessonIds)
+    expect(result.ok).toBe(false)
+    expect(sample.completedLessonIds).toEqual(['tables', 'records'])
     expect(warn).toHaveBeenCalledOnce()
   })
 })
