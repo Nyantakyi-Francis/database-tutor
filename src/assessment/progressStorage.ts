@@ -135,6 +135,26 @@ export function loadProgress(
   return { progress, status: 'restored' }
 }
 
+export type LessonUpdateResult = { ok: true; progress: StudentProgress } | { ok: false; message: string }
+
+/**
+ * Marks one lesson complete or incomplete. Rejects lesson IDs not in
+ * knownLessonIds and never adds a duplicate. Returns new progress; never throws.
+ */
+export function setLessonCompletion(
+  progress: StudentProgress,
+  lessonId: string,
+  completed: boolean,
+  knownLessonIds: readonly string[],
+): LessonUpdateResult {
+  if (!knownLessonIds.includes(lessonId)) {
+    console.warn(`${LOG_PREFIX} Ignored unknown lesson ID: ${lessonId}.`)
+    return { ok: false, message: 'This lesson could not be found, so its progress was not saved.' }
+  }
+  const others = progress.completedLessonIds.filter(id => id !== lessonId)
+  return { ok: true, progress: { ...progress, completedLessonIds: completed ? [...others, lessonId] : others } }
+}
+
 /** Writes progress. A storage failure returns a message and logs a warning; it never throws. */
 export function saveProgress(
   progress: StudentProgress,

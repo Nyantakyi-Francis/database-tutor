@@ -2,7 +2,13 @@
 import { useState } from 'react'
 import { lessons } from '../lessons/lessonData'
 import type { QuizResult, StudentProgress } from '../shared/types'
-import { createEmptyProgress, loadProgress, resetProgress, saveProgress } from './progressStorage'
+import {
+  createEmptyProgress,
+  loadProgress,
+  resetProgress,
+  saveProgress,
+  setLessonCompletion,
+} from './progressStorage'
 
 export interface ProgressNotice {
   kind: 'saved' | 'problem'
@@ -28,8 +34,9 @@ export function useProgress() {
   }
 
   function setLessonCompleted(lessonId: string, completed: boolean) {
-    const others = progress.completedLessonIds.filter(id => id !== lessonId)
-    update({ ...progress, completedLessonIds: completed ? [...others, lessonId] : others })
+    const result = setLessonCompletion(progress, lessonId, completed, lessonIds)
+    if (result.ok) update(result.progress)
+    else setNotice({ kind: 'problem', text: result.message })
   }
 
   function recordQuizResult(result: QuizResult) {
