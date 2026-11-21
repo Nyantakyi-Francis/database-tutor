@@ -6,10 +6,13 @@
 # Dependencies and generated output
 node_modules/
 dist/
+checkpoints/
 *.tsbuildinfo
 *.log
 
 # Local environment and editor files
+batch-report.yaml
+plan.md
 .env
 .env.*
 !.env.example

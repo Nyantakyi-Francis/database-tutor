@@ -2,15 +2,19 @@ import { useEffect, useState, type FormEvent } from 'react'
 import type { Database } from 'sql.js'
 import type { SQLQueryResult } from '../shared/types'
 import { createSchoolDatabase, executeQuery, loadSqlRuntime } from './databaseService'
-import { sampleQuery, sampleQueryResult } from './schoolData'
+import { sampleQueryResult } from './schoolData'
+import { exercises } from './exercises'
+import ExerciseHint from '../interface/ExerciseHint'
 import QueryResults from './QueryResults'
 
 export default function SqlPracticePage() {
   const [database, setDatabase] = useState<Database | null>(null)
   const [loadError, setLoadError] = useState(false)
   const [attempt, setAttempt] = useState(0)
-  const [query, setQuery] = useState(sampleQuery)
+  const [query, setQuery] = useState(exercises[0].starterQuery)
   const [result, setResult] = useState<SQLQueryResult | null>(null)
+  const [selectedExerciseId, setSelectedExerciseId] = useState(exercises[0].id)
+  const selectedExercise = exercises.find(exercise => exercise.id === selectedExerciseId) ?? exercises[0]
 
   useEffect(() => {
     let active = true
@@ -35,14 +39,41 @@ export default function SqlPracticePage() {
     setDatabase(null)
     setLoadError(false)
     setResult(null)
-    setQuery(sampleQuery)
+    setQuery(selectedExercise.starterQuery)
     setAttempt(previous => previous + 1)
+  }
+
+  function selectExercise(exerciseId: string) {
+    const exercise = exercises.find(item => item.id === exerciseId)
+    if (!exercise) return
+    setSelectedExerciseId(exercise.id)
+    setQuery(exercise.starterQuery)
+    setResult(null)
   }
 
   return <section>
     <h1>SQL Practice</h1>
-    <p>Run the starter query to see the fictional school records, or edit it to try your own query.</p>
-    <p className="notice">This is a starter demonstration. The six guided exercises are still being prepared.</p>
+    <p>Choose one of the six guided exercises, edit the starter query, and run it against the fictional school database.</p>
+
+    <div className="exercise-controls">
+      <label htmlFor="exercise-select">Guided exercise</label>
+      <select
+        id="exercise-select"
+        value={selectedExercise.id}
+        onChange={event => selectExercise(event.target.value)}
+      >
+        {exercises.map(exercise => <option key={exercise.id} value={exercise.id}>
+          {exercise.topic}: {exercise.title}
+        </option>)}
+      </select>
+    </div>
+
+    <article className="exercise-card" aria-labelledby="exercise-title">
+      <p className="eyebrow">{selectedExercise.topic}</p>
+      <h2 id="exercise-title">{selectedExercise.title}</h2>
+      <p>{selectedExercise.instructions}</p>
+      <ExerciseHint key={selectedExercise.id} hint={selectedExercise.hint} />
+    </article>
 
     <details>
       <summary>Tables available</summary>
