@@ -3,16 +3,17 @@ import type { Database } from 'sql.js'
 import type { SQLQueryResult } from '../shared/types'
 import { createSchoolDatabase, executeQuery, loadSqlRuntime } from './databaseService'
 import { exercises } from './exercises'
+import ExerciseHint from '../interface/ExerciseHint'
 import QueryResults from './QueryResults'
 
 export default function SqlPracticePage() {
   const [database, setDatabase] = useState<Database | null>(null)
   const [loadError, setLoadError] = useState(false)
   const [attempt, setAttempt] = useState(0)
-  const [exerciseId, setExerciseId] = useState(exercises[0].id)
-  const exercise = exercises.find(item => item.id === exerciseId) ?? exercises[0]
-  const [query, setQuery] = useState(exercise.starterQuery)
+  const [query, setQuery] = useState(exercises[0].starterQuery)
   const [result, setResult] = useState<SQLQueryResult | null>(null)
+  const [selectedExerciseId, setSelectedExerciseId] = useState(exercises[0].id)
+  const selectedExercise = exercises.find(exercise => exercise.id === selectedExerciseId) ?? exercises[0]
 
   useEffect(() => {
     let active = true
@@ -28,13 +29,6 @@ export default function SqlPracticePage() {
     }
   }, [attempt])
 
-  function chooseExercise(id: string) {
-    const next = exercises.find(item => item.id === id) ?? exercises[0]
-    setExerciseId(next.id)
-    setQuery(next.starterQuery)
-    setResult(null)
-  }
-
   function runQuery(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (database) setResult(executeQuery(database, query))
@@ -44,13 +38,41 @@ export default function SqlPracticePage() {
     setDatabase(null)
     setLoadError(false)
     setResult(null)
-    setQuery(exercise.starterQuery)
+    setQuery(selectedExercise.starterQuery)
     setAttempt(previous => previous + 1)
+  }
+
+  function selectExercise(exerciseId: string) {
+    const exercise = exercises.find(item => item.id === exerciseId)
+    if (!exercise) return
+    setSelectedExerciseId(exercise.id)
+    setQuery(exercise.starterQuery)
+    setResult(null)
   }
 
   return <section>
     <h1>SQL Practice</h1>
-    <p>Choose an exercise, edit the starter query, and run it. Compare your results with the expected results below.</p>
+    <p>Choose one of the six guided exercises, edit the starter query, and run it against the fictional school database.</p>
+
+    <div className="exercise-controls">
+      <label htmlFor="exercise-select">Guided exercise</label>
+      <select
+        id="exercise-select"
+        value={selectedExercise.id}
+        onChange={event => selectExercise(event.target.value)}
+      >
+        {exercises.map(exercise => <option key={exercise.id} value={exercise.id}>
+          {exercise.topic}: {exercise.title}
+        </option>)}
+      </select>
+    </div>
+
+    <article className="exercise-card" aria-labelledby="exercise-title">
+      <p className="eyebrow">{selectedExercise.topic}</p>
+      <h2 id="exercise-title">{selectedExercise.title}</h2>
+      <p>{selectedExercise.instructions}</p>
+      <ExerciseHint key={selectedExercise.id} hint={selectedExercise.hint} />
+    </article>
 
     <details>
       <summary>Tables available</summary>
@@ -60,18 +82,6 @@ export default function SqlPracticePage() {
         <dt>Scores</dt><dd>score_id, student_id, subject_id, score</dd>
       </dl>
     </details>
-
-    <p>
-      <label htmlFor="exercise-choice">Exercise</label>{' '}
-      <select id="exercise-choice" value={exercise.id} onChange={event => chooseExercise(event.target.value)}>
-        {exercises.map((item, index) =>
-          <option key={item.id} value={item.id}>{index + 1}. {item.topic}: {item.title}</option>)}
-      </select>
-    </p>
-
-    <h2>{exercise.title}</h2>
-    <p>{exercise.instructions}</p>
-    {/* E1 (S2-42, Figuelia): show exercise.hint here with interface/ExerciseHint. */}
 
     {loadError
       ? <div role="alert">
@@ -98,7 +108,7 @@ export default function SqlPracticePage() {
     </div>
     <details>
       <summary>Expected results</summary>
-      <QueryResults result={exercise.expectedResult} caption={`Expected results: ${exercise.title}`} />
+      <QueryResults result={selectedExercise.expectedResult} caption={`Expected results: ${selectedExercise.title}`} />
     </details>
   </section>
 }
