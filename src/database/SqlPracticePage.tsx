@@ -2,7 +2,6 @@ import { useEffect, useState, type FormEvent } from 'react'
 import type { Database } from 'sql.js'
 import type { SQLQueryResult } from '../shared/types'
 import { createSchoolDatabase, executeQuery, loadSqlRuntime } from './databaseService'
-import { sampleQueryResult } from './schoolData'
 import { exercises } from './exercises'
 import ExerciseHint from '../interface/ExerciseHint'
 import QueryResults from './QueryResults'
@@ -29,13 +28,6 @@ export default function SqlPracticePage() {
       connection?.close()
     }
   }, [attempt])
-
-  function chooseExercise(id: string) {
-    const next = exercises.find(item => item.id === id) ?? exercises[0]
-    setExerciseId(next.id)
-    setQuery(next.starterQuery)
-    setResult(null)
-  }
 
   function runQuery(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -91,18 +83,6 @@ export default function SqlPracticePage() {
       </dl>
     </details>
 
-    <p>
-      <label htmlFor="exercise-choice">Exercise</label>{' '}
-      <select id="exercise-choice" value={exercise.id} onChange={event => chooseExercise(event.target.value)}>
-        {exercises.map((item, index) =>
-          <option key={item.id} value={item.id}>{index + 1}. {item.topic}: {item.title}</option>)}
-      </select>
-    </p>
-
-    <h2>{exercise.title}</h2>
-    <p>{exercise.instructions}</p>
-    {/* E1 (S2-42, Figuelia): show exercise.hint here with interface/ExerciseHint. */}
-
     {loadError
       ? <div role="alert">
         <p>The school database could not load. Check your connection and reload to try again.</p>
@@ -128,7 +108,7 @@ export default function SqlPracticePage() {
     </div>
     <details>
       <summary>Expected results</summary>
-      <QueryResults result={exercise.expectedResult} caption={`Expected results: ${exercise.title}`} />
+      <QueryResults result={selectedExercise.expectedResult} caption={`Expected results: ${selectedExercise.title}`} />
     </details>
   </section>
 }
