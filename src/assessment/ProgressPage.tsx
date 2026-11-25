@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { lessons } from '../lessons/lessonData'
 import { quizzes } from './quizData'
 import { useProgress } from './useProgress'
@@ -6,9 +6,20 @@ import { useProgress } from './useProgress'
 export default function ProgressPage() {
   const { progress, notice, setLessonCompleted, reset } = useProgress()
   const [confirmingReset, setConfirmingReset] = useState(false)
+  const [resetClosed, setResetClosed] = useState(false)
+  const resetButton = useRef<HTMLButtonElement>(null)
   const completed = new Set(progress.completedLessonIds)
   const completedCount = lessons.filter(lesson => completed.has(lesson.id)).length
   const takenCount = quizzes.filter(quiz => progress.latestQuizResults[quiz.id]).length
+
+  // After Cancel or Yes, return keyboard focus to the Reset button.
+  useEffect(() => { if (resetClosed && !confirmingReset) resetButton.current?.focus() }, [resetClosed, confirmingReset])
+
+  function closeReset(confirmed: boolean) {
+    if (confirmed) reset()
+    setConfirmingReset(false)
+    setResetClosed(true)
+  }
 
   return <section>
     <h1>Progress</h1>
@@ -54,9 +65,11 @@ export default function ProgressPage() {
           Remove all completed lessons and quiz scores saved in this browser? This cannot be undone.
           The SQL practice database is not affected.
         </p>
-        <button type="button" autoFocus onClick={() => setConfirmingReset(false)}>Cancel</button>{' '}
-        <button type="button" onClick={() => { reset(); setConfirmingReset(false) }}>Yes, reset progress</button>
+        <div className="query-actions">
+          <button type="button" autoFocus onClick={() => closeReset(false)}>Cancel</button>
+          <button type="button" onClick={() => closeReset(true)}>Yes, reset progress</button>
+        </div>
       </div>
-      : <button type="button" onClick={() => setConfirmingReset(true)}>Reset progress</button>}
+      : <button type="button" ref={resetButton} onClick={() => setConfirmingReset(true)}>Reset progress</button>}
   </section>
 }
