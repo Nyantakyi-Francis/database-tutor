@@ -28,7 +28,7 @@ export default function ProgressPage() {
       {notice ? <>{notice.kind === 'problem' && <strong>Warning: </strong>}{notice.text}</> : null}
     </p>
 
-    <fieldset>
+    <fieldset className="progress-lessons">
       <legend>Lessons completed ({completedCount} of {lessons.length})</legend>
       {lessons.map(lesson => <div key={lesson.id}>
         <label>
@@ -36,7 +36,7 @@ export default function ProgressPage() {
             type="checkbox"
             checked={completed.has(lesson.id)}
             onChange={event => setLessonCompleted(lesson.id, event.target.checked)}
-          />{' '}
+          />
           {lesson.title}
         </label>
       </div>)}
