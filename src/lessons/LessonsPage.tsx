@@ -9,6 +9,7 @@ export default function LessonsPage() {
   const { progress, notice, setLessonCompleted } = useProgress()
   const lesson = lessons[selectedIndex]
   const completedIds = new Set(progress.completedLessonIds)
+  const completedCount = lessons.filter(item => completedIds.has(item.id)).length
 
   function openLesson(index: number) {
     setSelectedIndex(index)
@@ -18,8 +19,8 @@ export default function LessonsPage() {
   return <section>
     <h1>Lessons</h1>
     <p>Learn about tables, records, fields, keys, and relationships using fictional school data.</p>
-    <p>{completedIds.size} of {lessons.length} lessons complete.</p>
-    <p className="notice">Completion is saved in this browser. You can uncheck a completed lesson to revisit it.</p>
+    <p>{completedCount} of {lessons.length} lessons complete.</p>
+    <p className="notice">Completion is saved in this browser. You can undo a completion at any time.</p>
 
     <h2>Choose a lesson</h2>
     <ol className="lesson-list" aria-label="Lesson list">

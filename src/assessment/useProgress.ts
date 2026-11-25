@@ -25,17 +25,20 @@ export function useProgress() {
     initial.message ? { kind: 'problem', text: initial.message } : null,
   )
 
-  function update(next: StudentProgress) {
+  function update(next: StudentProgress, savedText = 'Progress saved in this browser.') {
     setProgress(next)
     const result = saveProgress(next)
     setNotice(result.ok
-      ? { kind: 'saved', text: 'Progress saved in this browser.' }
+      ? { kind: 'saved', text: savedText }
       : { kind: 'problem', text: result.message })
   }
 
   function setLessonCompleted(lessonId: string, completed: boolean) {
     const result = setLessonCompletion(progress, lessonId, completed, lessonIds)
-    if (result.ok) update(result.progress)
+    const title = lessons.find(lesson => lesson.id === lessonId)?.title ?? 'Lesson'
+    if (result.ok) update(result.progress, completed
+      ? `"${title}" marked complete. Progress saved in this browser.`
+      : `"${title}" marked as not complete. Progress saved in this browser.`)
     else setNotice({ kind: 'problem', text: result.message })
   }
 

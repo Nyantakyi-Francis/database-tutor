@@ -46,12 +46,12 @@ export default function LessonCard({ lesson, completed, onCompletionChange, focu
       {answerShown ? 'Hide answer' : 'Show answer'}
     </button>
     <p id={answerId} hidden={!answerShown}><strong>Answer:</strong> {answer}</p>
-    <p>
-      <label>
-        <input type="checkbox" checked={completed}
-          onChange={event => onCompletionChange(event.target.checked)} />{' '}
-        Mark this lesson complete
-      </label>
-    </p>
+    <h3>Lesson completion</h3>
+    <p>{completed ? 'You have marked this lesson complete.' : 'This lesson is not marked complete yet.'}</p>
+    <div className="query-actions">
+      {completed
+        ? <button type="button" onClick={() => onCompletionChange(false)}>Undo: mark as not complete</button>
+        : <button type="button" onClick={() => onCompletionChange(true)}>Mark lesson complete</button>}
+    </div>
   </article>
 }
