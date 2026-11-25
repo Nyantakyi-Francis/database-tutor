@@ -43,6 +43,9 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .lesson-choice { width: 100%; text-align: left; padding: .6rem .9rem; font: inherit; color: inherit; background: white; border: 1px solid #b9c6cb; border-radius: .4rem; }
 .lesson-choice[aria-current="step"] { background: #e2efeb; border-color: #185f57; font-weight: 650; }
 .lesson-done { color: #185f57; }
+.quiz-question { border: 1px solid #dbe3e6; border-radius: .5rem; padding: 1rem 1.25rem; margin: 0 0 1rem; min-width: 0; }
+.quiz-question legend { font-weight: 650; padding: 0 .3rem; overflow-wrap: anywhere; }
+.quiz-option { display: flex; gap: .5rem; align-items: baseline; padding: .35rem 0; overflow-wrap: anywhere; }
 caption { text-align: left; font-weight: 650; padding: .4rem 0; }
 @media (max-width: 600px) {
   header { align-items: flex-start; gap: .75rem; }
