@@ -7,11 +7,13 @@ import { schoolSchema } from './schoolData'
 // Owner: Efehi Nehikhare. Vite emits the real installed WASM asset.
 let runtime: Promise<SqlJsStatic> | undefined
 
+/**
+ * Loads sql.js once per page. sql.js caches its first initSqlJs() promise,
+ * including a rejected one, so a failed load cannot be retried in place;
+ * reloading the page is the retry (see the Reload button on SQL Practice).
+ */
 export function loadSqlRuntime(): Promise<SqlJsStatic> {
-  runtime ??= initSqlJs({ locateFile: () => wasmUrl }).catch((error: unknown) => {
-    runtime = undefined
-    throw error
-  })
+  runtime ??= initSqlJs({ locateFile: () => wasmUrl })
   return runtime
 }
 
