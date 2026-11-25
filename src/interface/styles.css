@@ -47,7 +47,9 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .lesson-choice[aria-current="step"] { background: #e2efeb; border-color: #185f57; font-weight: 650; }
 .lesson-done { color: #185f57; }
 .quiz-question { border: 1px solid #dbe3e6; border-radius: .5rem; padding: 1rem 1.25rem; margin: 0 0 1rem; min-width: 0; }
-.quiz-question legend { font-weight: 650; padding: 0 .3rem; overflow-wrap: anywhere; }
+/* Floating the legend keeps a long question inside the box instead of across its top border. */
+.quiz-question legend { float: left; width: 100%; padding: 0; margin-bottom: .5rem; font-weight: 650; overflow-wrap: anywhere; }
+.quiz-question legend + * { clear: both; }
 .quiz-feedback { margin-top: .75rem; padding: .75rem 1rem; border-left: 4px solid; border-radius: .3rem; }
 .quiz-feedback p { margin: .25rem 0; }
 .quiz-feedback.is-correct { border-color: #1f7a4d; background: #eaf6ef; }
