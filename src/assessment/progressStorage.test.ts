@@ -7,6 +7,7 @@ import {
   resetProgress,
   saveProgress,
   setLessonCompletion,
+  setQuizResult,
   type ProgressStorage,
 } from './progressStorage'
 
@@ -229,5 +230,36 @@ describe('reset', () => {
 
   it('reports a message when storage does not exist', () => {
     expect(resetProgress(null).ok).toBe(false)
+  })
+})
+
+describe('recording a quiz result', () => {
+  const other = { quizId: 'basic-sql', score: 2, totalQuestions: 4, completedAt: '2026-11-20T09:00:00.000Z' }
+  const base: StudentProgress = { ...sample, latestQuizResults: { ...sample.latestQuizResults, 'basic-sql': other } }
+
+  it('adds a result for a quiz with no saved result', () => {
+    const result = { quizId: 'database-basics', score: 4, totalQuestions: 4, completedAt: '2026-11-25T10:00:00.000Z' }
+    const next = setQuizResult(base, result)
+    expect(next.latestQuizResults['database-basics']).toEqual(result)
+    expect(Object.keys(next.latestQuizResults)).toHaveLength(3)
+  })
+
+  it('a retake replaces only that quiz and keeps lessons and other quizzes', () => {
+    const retake = { ...sample.latestQuizResults['demo-quiz'], score: 1, completedAt: '2026-11-25T11:00:00.000Z' }
+    const next = setQuizResult(base, retake)
+    expect(next.latestQuizResults['demo-quiz']).toEqual(retake)
+    expect(next.latestQuizResults['basic-sql']).toEqual(other)
+    expect(next.completedLessonIds).toEqual(base.completedLessonIds)
+    expect(base.latestQuizResults['demo-quiz'].score).toBe(3)
+  })
+
+  it('a retake survives save and load', () => {
+    const storage = new MemoryStorage()
+    saveProgress(base, storage)
+    const retake = { ...other, score: 4, completedAt: '2026-11-25T12:00:00.000Z' }
+    saveProgress(setQuizResult(loadProgress(storage, lessonIds).progress, retake), storage)
+    const loaded = loadProgress(storage, lessonIds).progress
+    expect(loaded.latestQuizResults['basic-sql']).toEqual(retake)
+    expect(loaded.latestQuizResults['demo-quiz']).toEqual(sample.latestQuizResults['demo-quiz'])
   })
 })

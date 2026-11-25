@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { Quiz, QuizQuestion } from '../shared/types'
+import type { Quiz, QuizQuestion, QuizResult } from '../shared/types'
 import { findUnanswered, scoreQuiz, type QuestionFeedback, type ScoredQuiz } from './quizScoring'
 
 /** One quiz attempt: choose an answer per question, submit, review feedback, then retake. */
-export default function QuizForm({ quiz }: { quiz: Quiz }) {
+export default function QuizForm({ quiz, onSubmitted }: {
+  quiz: Quiz
+  onSubmitted: (result: QuizResult) => void
+}) {
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [scored, setScored] = useState<ScoredQuiz | null>(null)
   const [warnUnanswered, setWarnUnanswered] = useState(false)
@@ -21,8 +24,10 @@ export default function QuizForm({ quiz }: { quiz: Quiz }) {
   useEffect(() => { if (scored) summary.current?.focus() }, [scored])
 
   function finish() {
-    setScored(scoreQuiz(quiz, answers))
+    const next = scoreQuiz(quiz, answers)
+    setScored(next)
     setWarnUnanswered(false)
+    onSubmitted(next.result)
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {

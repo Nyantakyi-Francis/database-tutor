@@ -155,6 +155,11 @@ export function setLessonCompletion(
   return { ok: true, progress: { ...progress, completedLessonIds: completed ? [...others, lessonId] : others } }
 }
 
+/** Stores a quiz result as that quiz's latest result, replacing only its previous one. */
+export function setQuizResult(progress: StudentProgress, result: QuizResult): StudentProgress {
+  return { ...progress, latestQuizResults: { ...progress.latestQuizResults, [result.quizId]: result } }
+}
+
 /** Writes progress. A storage failure returns a message and logs a warning; it never throws. */
 export function saveProgress(
   progress: StudentProgress,

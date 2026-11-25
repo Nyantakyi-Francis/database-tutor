@@ -8,6 +8,7 @@ import {
   resetProgress,
   saveProgress,
   setLessonCompletion,
+  setQuizResult,
 } from './progressStorage'
 
 export interface ProgressNotice {
@@ -43,7 +44,7 @@ export function useProgress() {
   }
 
   function recordQuizResult(result: QuizResult) {
-    update({ ...progress, latestQuizResults: { ...progress.latestQuizResults, [result.quizId]: result } })
+    update(setQuizResult(progress, result), 'Quiz score saved in this browser. It replaces your previous score for this quiz.')
   }
 
   /** Clears lessons and quiz scores. The page asks the student to confirm first. */

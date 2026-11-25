@@ -1,27 +1,14 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { lessons } from '../lessons/lessonData'
+import { quizzes } from './quizData'
 import { useProgress } from './useProgress'
 
-// Quizzes are not built yet (quizData.ts is empty). This sample quiz lets the
-// save/restore behaviour be demonstrated; replace it when real quizzes exist.
-const DEMO_QUIZ = { id: 'demo-quiz', title: 'Demo quiz', totalQuestions: 4 }
-
 export default function ProgressPage() {
-  const { progress, notice, setLessonCompleted, recordQuizResult, reset } = useProgress()
-  const [demoScore, setDemoScore] = useState(0)
+  const { progress, notice, setLessonCompleted, reset } = useProgress()
   const [confirmingReset, setConfirmingReset] = useState(false)
   const completed = new Set(progress.completedLessonIds)
-  const results = Object.values(progress.latestQuizResults)
-
-  function saveDemoScore(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    recordQuizResult({
-      quizId: DEMO_QUIZ.id,
-      score: demoScore,
-      totalQuestions: DEMO_QUIZ.totalQuestions,
-      completedAt: new Date().toISOString(),
-    })
-  }
+  const completedCount = lessons.filter(lesson => completed.has(lesson.id)).length
+  const takenCount = quizzes.filter(quiz => progress.latestQuizResults[quiz.id]).length
 
   return <section>
     <h1>Progress</h1>
@@ -31,7 +18,7 @@ export default function ProgressPage() {
     </p>
 
     <fieldset>
-      <legend>Lessons completed ({completed.size} of {lessons.length})</legend>
+      <legend>Lessons completed ({completedCount} of {lessons.length})</legend>
       {lessons.map(lesson => <div key={lesson.id}>
         <label>
           <input
@@ -44,30 +31,21 @@ export default function ProgressPage() {
       </div>)}
     </fieldset>
 
-    <h2>Latest quiz scores</h2>
-    {results.length === 0
-      ? <p>No quiz scores saved yet.</p>
-      : <div className="table-scroll"><table>
-        <thead><tr><th scope="col">Quiz</th><th scope="col">Score</th><th scope="col">Completed</th></tr></thead>
-        <tbody>{results.map(result => <tr key={result.quizId}>
-          <td>{result.quizId === DEMO_QUIZ.id ? DEMO_QUIZ.title : result.quizId}</td>
-          <td>{result.score} / {result.totalQuestions}</td>
-          <td>{new Date(result.completedAt).toLocaleString()}</td>
-        </tr>)}</tbody>
-      </table></div>}
-
-    <form onSubmit={saveDemoScore}>
-      <h3>Record a demo quiz score</h3>
-      <p className="notice">Quizzes are still being prepared. Use this to check that a score is saved.</p>
-      <label>
-        Score out of {DEMO_QUIZ.totalQuestions}{' '}
-        <select value={demoScore} onChange={event => setDemoScore(Number(event.target.value))}>
-          {Array.from({ length: DEMO_QUIZ.totalQuestions + 1 }, (_, score) =>
-            <option key={score} value={score}>{score}</option>)}
-        </select>
-      </label>{' '}
-      <button type="submit">Save score</button>
-    </form>
+    <h2>Latest quiz scores ({takenCount} of {quizzes.length} taken)</h2>
+    <div className="table-scroll" tabIndex={0} role="region" aria-label="Latest quiz scores">
+      <table>
+        <thead><tr><th scope="col">Quiz</th><th scope="col">Latest score</th><th scope="col">Completed</th></tr></thead>
+        <tbody>{quizzes.map(quiz => {
+          const result = progress.latestQuizResults[quiz.id]
+          return <tr key={quiz.id}>
+            <td>{quiz.title}</td>
+            <td>{result ? `${result.score} / ${result.totalQuestions}` : 'Not taken yet'}</td>
+            <td>{result ? new Date(result.completedAt).toLocaleString() : '—'}</td>
+          </tr>
+        })}</tbody>
+      </table>
+    </div>
+    <p><a href="#quizzes">Take or retake a quiz</a></p>
 
     <h2>Reset progress</h2>
     {confirmingReset
