@@ -1,56 +1,60 @@
-// Owner: Victor Talabi. Holds progress in memory and saves each change.
-import { useState } from 'react'
+// Owner: Victor Talabi. React access to the shared progress store.
+import { useState, useSyncExternalStore } from 'react'
 import { lessons } from '../lessons/lessonData'
-import type { QuizResult, StudentProgress } from '../shared/types'
-import {
-  createEmptyProgress,
-  loadProgress,
-  resetProgress,
-  saveProgress,
-  setLessonCompletion,
-} from './progressStorage'
+import type { QuizResult } from '../shared/types'
+import { PROGRESS_STORAGE_KEY, getBrowserStorage } from './progressStorage'
+import { createProgressStore, type ActionResult } from './progressStore'
+import { quizzes } from './quizData'
 
 export interface ProgressNotice {
   kind: 'saved' | 'problem'
   text: string
 }
 
-const lessonIds = lessons.map(lesson => lesson.id)
+const store = createProgressStore(
+  getBrowserStorage,
+  lessons.map(lesson => lesson.id),
+  quizzes.map(quiz => quiz.id),
+)
 
-/** Restores saved progress once, then keeps working in memory even if saving fails. */
+// Another tab saved or reset progress: show its latest copy here too.
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', event => {
+    if (event.key === PROGRESS_STORAGE_KEY || event.key === null) store.reload()
+  })
+}
+
+/**
+ * Every page shares one copy of progress, so changes made on one page show on
+ * the others, and progress kept in memory (when storage fails) is not lost
+ * when the student switches pages.
+ */
 export function useProgress() {
-  const [initial] = useState(() => loadProgress(undefined, lessonIds))
-  const [progress, setProgress] = useState<StudentProgress>(initial.progress)
-  const [notice, setNotice] = useState<ProgressNotice | null>(
-    initial.message ? { kind: 'problem', text: initial.message } : null,
-  )
+  const { progress, problem } = useSyncExternalStore(store.subscribe, store.getSnapshot)
+  const [lastAction, setLastAction] = useState<ProgressNotice | null>(null)
 
-  function update(next: StudentProgress) {
-    setProgress(next)
-    const result = saveProgress(next)
-    setNotice(result.ok
-      ? { kind: 'saved', text: 'Progress saved in this browser.' }
-      : { kind: 'problem', text: result.message })
+  function report(result: ActionResult, savedText: string) {
+    setLastAction(result.ok ? { kind: 'saved', text: savedText } : { kind: 'problem', text: result.message })
   }
 
   function setLessonCompleted(lessonId: string, completed: boolean) {
-    const result = setLessonCompletion(progress, lessonId, completed, lessonIds)
-    if (result.ok) update(result.progress)
-    else setNotice({ kind: 'problem', text: result.message })
+    const title = lessons.find(lesson => lesson.id === lessonId)?.title ?? 'Lesson'
+    report(store.setLessonCompleted(lessonId, completed), completed
+      ? `"${title}" marked complete. Progress saved in this browser.`
+      : `"${title}" marked as not complete. Progress saved in this browser.`)
   }
 
   function recordQuizResult(result: QuizResult) {
-    update({ ...progress, latestQuizResults: { ...progress.latestQuizResults, [result.quizId]: result } })
+    report(store.recordQuizResult(result),
+      'Quiz score saved in this browser. It replaces your previous score for this quiz.')
   }
 
-  /** Clears lessons and quiz scores. The page asks the student to confirm first. */
   function reset() {
-    setProgress(createEmptyProgress())
-    const result = resetProgress()
-    setNotice(result.ok
-      ? { kind: 'saved', text: 'Progress reset. Completed lessons and quiz scores were removed.' }
-      : { kind: 'problem', text: result.message })
+    report(store.reset(), 'Progress reset. Completed lessons and quiz scores were removed.')
   }
+
+  // This page's latest action wins; otherwise show any ongoing storage problem.
+  const notice: ProgressNotice | null = lastAction ?? (problem ? { kind: 'problem', text: problem } : null)
 
   return { progress, notice, setLessonCompleted, recordQuizResult, reset }
 }

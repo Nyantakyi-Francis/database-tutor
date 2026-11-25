@@ -36,7 +36,27 @@ summary { cursor: pointer; }
 .exercise-card h2 { margin: .25rem 0 .75rem; }
 .exercise-card details { margin-top: 1rem; }
 button, select, summary, a { touch-action: manipulation; }
-button { cursor: pointer; }
+button { cursor: pointer; font: inherit; padding: .55rem 1rem; min-height: 2.75rem; }
+.progress-lessons label { display: flex; gap: .5rem; align-items: baseline; padding: .3rem 0; }
+.progress-lessons input { width: 1.1rem; height: 1.1rem; flex: none; }
+.quiz-option input { width: 1.1rem; height: 1.1rem; flex: none; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+.secondary-button { padding: .5rem .9rem; font: inherit; }
+.lesson-list { list-style: none; padding: 0; display: grid; gap: .5rem; max-width: 44rem; }
+.lesson-choice { width: 100%; text-align: left; padding: .6rem .9rem; font: inherit; color: inherit; background: white; border: 1px solid #b9c6cb; border-radius: .4rem; }
+.lesson-choice[aria-current="step"] { background: #e2efeb; border-color: #185f57; font-weight: 650; }
+.lesson-done { color: #185f57; }
+.quiz-question { border: 1px solid #dbe3e6; border-radius: .5rem; padding: 1rem 1.25rem; margin: 0 0 1rem; min-width: 0; }
+.quiz-question legend { font-weight: 650; padding: 0 .3rem; overflow-wrap: anywhere; }
+.quiz-feedback { margin-top: .75rem; padding: .75rem 1rem; border-left: 4px solid; border-radius: .3rem; }
+.quiz-feedback p { margin: .25rem 0; }
+.quiz-feedback.is-correct { border-color: #1f7a4d; background: #eaf6ef; }
+.quiz-feedback.is-incorrect { border-color: #a1401c; background: #fbefe9; }
+.quiz-warning { border: 2px solid #89520b; background: #fdf5e8; border-radius: .4rem; padding: .75rem 1rem; margin-bottom: 1rem; }
+.quiz-summary { border: 1px solid #185f57; background: #e2efeb; border-radius: .4rem; padding: .75rem 1rem; margin-bottom: 1rem; }
+.quiz-summary h3 { margin: 0; }
+.quiz-option { display: flex; gap: .5rem; align-items: baseline; padding: .35rem 0; overflow-wrap: anywhere; }
+caption { text-align: left; font-weight: 650; padding: .4rem 0; }
 @media (max-width: 600px) {
   header { align-items: flex-start; gap: .75rem; }
   nav { width: 100%; }

@@ -94,11 +94,13 @@ export function parseProgress(raw: string): ParseResult {
 /**
  * Reads saved progress. Invalid data or a storage failure returns empty
  * progress with a message and logs a warning; it never throws.
- * Lesson IDs not in knownLessonIds are dropped, keeping the rest.
+ * Lesson IDs not in knownLessonIds and quiz results not in knownQuizIds
+ * are dropped, keeping the rest.
  */
 export function loadProgress(
   storage: ProgressStorage | null = getBrowserStorage(),
   knownLessonIds?: readonly string[],
+  knownQuizIds?: readonly string[],
 ): LoadResult {
   if (!storage) {
     console.warn(`${LOG_PREFIX} Browser storage is not available. Progress will be kept until the page is closed.`)
@@ -132,6 +134,13 @@ export function loadProgress(
       progress.completedLessonIds = progress.completedLessonIds.filter(id => knownLessonIds.includes(id))
     }
   }
+  if (knownQuizIds) {
+    const unknown = Object.keys(progress.latestQuizResults).filter(id => !knownQuizIds.includes(id))
+    if (unknown.length > 0) {
+      console.warn(`${LOG_PREFIX} Dropped results for unknown quiz IDs: ${unknown.join(', ')}.`)
+      for (const id of unknown) delete progress.latestQuizResults[id]
+    }
+  }
   return { progress, status: 'restored' }
 }
 
@@ -153,6 +162,11 @@ export function setLessonCompletion(
   }
   const others = progress.completedLessonIds.filter(id => id !== lessonId)
   return { ok: true, progress: { ...progress, completedLessonIds: completed ? [...others, lessonId] : others } }
+}
+
+/** Stores a quiz result as that quiz's latest result, replacing only its previous one. */
+export function setQuizResult(progress: StudentProgress, result: QuizResult): StudentProgress {
+  return { ...progress, latestQuizResults: { ...progress.latestQuizResults, [result.quizId]: result } }
 }
 
 /** Writes progress. A storage failure returns a message and logs a warning; it never throws. */

@@ -85,7 +85,8 @@ export default function SqlPracticePage() {
 
     {loadError
       ? <div role="alert">
-        <p>The school database could not load. Check your connection and reload to try again.</p>
+        {/* sql.js caches a failed initSqlJs() for the life of the page, so only a reload can retry. */}
+        <p>The school database could not load. Check your connection, then reload to try again. An edited query is not kept after reloading.</p>
         <button type="button" onClick={() => window.location.reload()}>Reload SQL Practice</button>
       </div>
       : <p role="status">{database ? 'School database ready.' : 'Loading school database…'}</p>}
