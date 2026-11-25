@@ -37,6 +37,13 @@ summary { cursor: pointer; }
 .exercise-card details { margin-top: 1rem; }
 button, select, summary, a { touch-action: manipulation; }
 button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+.secondary-button { padding: .5rem .9rem; font: inherit; }
+.lesson-list { list-style: none; padding: 0; display: grid; gap: .5rem; max-width: 44rem; }
+.lesson-choice { width: 100%; text-align: left; padding: .6rem .9rem; font: inherit; color: inherit; background: white; border: 1px solid #b9c6cb; border-radius: .4rem; }
+.lesson-choice[aria-current="step"] { background: #e2efeb; border-color: #185f57; font-weight: 650; }
+.lesson-done { color: #185f57; }
+caption { text-align: left; font-weight: 650; padding: .4rem 0; }
 @media (max-width: 600px) {
   header { align-items: flex-start; gap: .75rem; }
   nav { width: 100%; }

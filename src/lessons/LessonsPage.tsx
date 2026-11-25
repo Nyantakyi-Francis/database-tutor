@@ -22,16 +22,14 @@ export default function LessonsPage() {
     <p className="notice">Completion is saved in this browser. You can uncheck a completed lesson to revisit it.</p>
 
     <h2>Choose a lesson</h2>
-    <ol aria-label="Lesson list">
+    <ol className="lesson-list" aria-label="Lesson list">
       {lessons.map((item, index) => <li key={item.id}>
-        <div className="query-actions">
-          <button type="button" className="button" style={{ marginTop: 0 }}
-            aria-current={index === selectedIndex ? 'step' : undefined}
-            onClick={() => openLesson(index)}>
-            {item.title}{index === selectedIndex ? ' (current)' : ''}
-            {completedIds.has(item.id) ? ' (completed)' : ''}
-          </button>
-        </div>
+        <button type="button" className="lesson-choice"
+          aria-current={index === selectedIndex ? 'step' : undefined}
+          onClick={() => openLesson(index)}>
+          {item.title}
+          {completedIds.has(item.id) && <span className="lesson-done"> (completed)</span>}
+        </button>
       </li>)}
     </ol>
 
@@ -43,12 +41,9 @@ export default function LessonsPage() {
     </p>
 
     <div className="query-actions" role="group" aria-label="Lesson navigation">
-      <button type="button" className="button" style={{ marginTop: 0, opacity: selectedIndex === 0 ? 0.5 : 1 }}
-        disabled={selectedIndex === 0}
+      <button type="button" disabled={selectedIndex === 0}
         onClick={() => openLesson(selectedIndex - 1)}>Previous lesson</button>
-      <button type="button" className="button"
-        style={{ marginTop: 0, opacity: selectedIndex === lessons.length - 1 ? 0.5 : 1 }}
-        disabled={selectedIndex === lessons.length - 1}
+      <button type="button" disabled={selectedIndex === lessons.length - 1}
         onClick={() => openLesson(selectedIndex + 1)}>Next lesson</button>
     </div>
     <p><a href="#progress">View saved progress</a>{' · '}<a href="#practice">Practise SQL</a></p>

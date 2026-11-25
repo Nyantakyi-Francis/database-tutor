@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Lesson } from '../shared/types'
 import { parseLessonExample } from './lessonContent'
 
@@ -11,6 +11,8 @@ interface LessonCardProps {
 
 export default function LessonCard({ lesson, completed, onCompletionChange, focusOnOpen }: LessonCardProps) {
   const heading = useRef<HTMLHeadingElement>(null)
+  const [answerShown, setAnswerShown] = useState(false)
+  const answerId = `lesson-${lesson.id}-answer`
   const { blocks, question, answer } = parseLessonExample(lesson.example)
 
   useEffect(() => {
@@ -39,10 +41,11 @@ export default function LessonCard({ lesson, completed, onCompletionChange, focu
 
     <h3>Check your understanding</h3>
     <p>{question}</p>
-    <details>
-      <summary>Show answer</summary>
-      <p>{answer}</p>
-    </details>
+    <button type="button" className="secondary-button" aria-expanded={answerShown} aria-controls={answerId}
+      onClick={() => setAnswerShown(shown => !shown)}>
+      {answerShown ? 'Hide answer' : 'Show answer'}
+    </button>
+    <p id={answerId} hidden={!answerShown}><strong>Answer:</strong> {answer}</p>
     <p>
       <label>
         <input type="checkbox" checked={completed}
