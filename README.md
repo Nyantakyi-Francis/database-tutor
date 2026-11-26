@@ -14,7 +14,7 @@ Figuelia Ya'Sin
 
 ## Purpose and scope
 
-Database Tutor is a CSE 499 beginner database learning app. The objective is to explain database concepts and let students practise basic SQL without installing database software. The current local app has six readable lessons with saved completion, a working SQL starter, and a progress demonstration. Guided exercise integration and scored quizzes remain unfinished.
+Database Tutor is a CSE 499 beginner database learning app. The objective is to explain database concepts and let students practise basic SQL without installing database software. The current local app has six interactive lessons, six guided SQL exercises with hints, three scored quizzes with explanations, and saved lesson completion and latest quiz results. See the Sprint 3 acceptance record below for the revision, checks, and verification limits.
 
 The completed W02 project plan is the scope reference. Local Word/PDF planning documents are ignored by Git; put agreed changes in this README so everyone can read them.
 
@@ -107,9 +107,11 @@ Francis also owns README.md and coordinates requirements/documentation. Figuelia
 
 src/shared/types.ts defines Lesson, SQLExercise, SQLQueryResult, Quiz, QuizQuestion, QuizResult, and StudentProgress. IDs are stable keys, not display titles or array positions. Coordinate IDs before writing content. SQL errors use error with empty columns/rows. Quiz scores are numbers correct out of totalQuestions; completion timestamps use ISO 8601. StudentProgress version 1 stores completedLessonIds and latestQuizResults keyed by quiz ID.
 
-The practice database is disposable and separate from progress. schoolSchema contains fictional Students, Subjects, and Scores tables. Six guided exercise definitions, reference results, and hints exist in `src/database/exercises.ts`, but the SQL Practice screen does not connect them yet. Quiz data remains empty apart from its coverage outline. The Lessons view renders the six accepted lesson drafts, with their agreed IDs, school examples, answer disclosures, and completion checkboxes. It uses Victor's `useProgress` API to save and restore completion. progressStorage.ts implements validated save, restore, and reset. The Progress view provides lesson-completion checkboxes and a demo quiz score for checking persistence. Quiz scoring and guided exercise hints are not connected yet.
+The practice database is disposable and separate from progress. `schoolSchema` contains fictional Students, Subjects, and Scores tables. SQL Practice connects the six exercises in `src/database/exercises.ts` to editable starter queries, expected results, and student-controlled hints. Learners compare their results with the examples; arbitrary SQL is not automatically graded.
 
-Francis confirmed on 16 November 2026 that the team accepted all six lesson drafts and agreed the quiz IDs `database-basics`, `keys-and-relationships`, and `basic-sql`. The twelve-question coverage outline is in `src/assessment/quizData.ts`. Its comment still describes the IDs as proposed and predates this confirmation; the confirmation here does not mean scored quizzes are implemented.
+Lessons render one at a time with school tables, answer disclosure, navigation, and completion/undo. `useProgress` connects Lessons, Quizzes, Progress, and Home to the shared progress store. The Progress view displays actual latest quiz scores; the earlier demo-score control has been removed. Storage validation and recovery notices remain in place, and progress reset requires confirmation.
+
+The agreed quiz IDs are `database-basics`, `keys-and-relationships`, and `basic-sql`. `src/assessment/quizData.ts` now contains all twelve questions and explanations. The first two quizzes cover the lessons; the SQL quiz covers SELECT, WHERE, and ORDER BY from guided practice. A submitted retake replaces only that quiz's saved result.
 
 ## SQL runtime
 
@@ -145,13 +147,13 @@ If repository settings and the GitHub plan permit it, configure a main ruleset r
 
 ## Deployment and limitations
 
-The starter is deployed on Vercel: https://database-tutor-virid.vercel.app. The Vercel project is `database-tutor` under `nyantakyi-francis-projects`, connected to `Nyantakyi-Francis/database-tutor`. It uses the Vite preset, `npm ci`, `npm run build`, and output directory `dist`. Hash navigation avoids server rewrite requirements; relative asset paths support hosting in a subdirectory.
+The project has a Vercel production URL: https://database-tutor-virid.vercel.app. The Vercel project is `database-tutor` under `nyantakyi-francis-projects`, connected to `Nyantakyi-Francis/database-tutor`. It uses the Vite preset, `npm ci`, `npm run build`, and output directory `dist`. Hash navigation avoids server rewrite requirements; relative asset paths support hosting in a subdirectory.
 
 Deployment verification on 16 November 2026 used revision `be1408f406cc9d51d4a5723123251848860c2040`, deployment `dpl_6SAAXfR7NgHagrP7ESoivGGMJeV6`. Vercel reported production status READY. The public URL returned HTTP 200 without authentication. In Chromium, the hosted `assets/sql-wasm-B-9ndiyM.wasm` request returned HTTP 200, and the starter SELECT returned the expected rows: `(101, Ama Mensah, JHS 1A)` and `(102, Kojo Owusu, JHS 1B)`.
 
 On the hosted Progress view, completing `tables` and `records` and saving a demo quiz score of 3/4 restored both completions and the score after refresh. Browser console checks reported no errors or warnings. SQL Practice and Progress were checked at desktop (1366x900) and phone (390x844) widths. Checks used the Playwright CLI with artifacts outside the repository. Local typecheck, production build, all 48 tests, and `git diff --check` passed for the deployed revision. These checks do not establish browser-restart persistence, other-browser support, or completion of the learning activities.
 
-The Sprint 2 lesson changes described below have been checked locally and are awaiting commit, pull request, and deployment. The hosted checks above describe the 16 November starter revision. Guided exercise selection, scored quizzes, and E1 hint integration remain unfinished. Browser-local progress belongs to the same browser and site and can be lost when browser data is cleared. No real student data should be included.
+The hosted checks above describe the 16 November starter revision. The current local source includes integrated lessons, guided exercises, hints, and scored quizzes. The production site was not rechecked on 26 November, so the historical hosted results do not establish the current deployed revision or its behavior. Browser-local progress belongs to the same browser and site and can be lost when browser data is cleared. No real student data should be included.
 
 ## Sprint outline
 
@@ -224,7 +226,7 @@ Local checks on 12 November 2026 passed: `npm run typecheck`, `npm run build`, a
 
 ## Francis's Sprint 2 lessons (16–22 November 2026)
 
-The lesson work is on `feature/lessons-sprint2`, branched from `349d7c4` after fetching and confirming that local main matched origin/main. Changes are limited to `src/lessons/` and this README. The existing Sprint 1 README updates were preserved. Accepted lesson wording and IDs are unchanged; the presentation helper reads the existing example format without changing the shared `Lesson` contract. Lesson controls reuse the existing button, table-scroll, notice, and focus styles.
+Historical record from 18 November; integration status is superseded by the Sprint 3 record below. The lesson work was on `feature/lessons-sprint2`, branched from `349d7c4` after fetching and confirming that local main matched origin/main. Changes are limited to `src/lessons/` and this README. The existing Sprint 1 README updates were preserved. Accepted lesson wording and IDs are unchanged; the presentation helper reads the existing example format without changing the shared `Lesson` contract. Lesson controls reuse the existing button, table-scroll, notice, and focus styles.
 
 ### Use and check the lessons
 
@@ -248,7 +250,7 @@ Completion uses `useProgress().setLessonCompleted(lesson.id, completed)`. Existi
 
 Francis reports **16 actual hours worked so far**, against 12 estimated hours. No task-level allocation was supplied; this is not a final sprint total. His answers also confirm agreement to use Victor's existing API and to leave shared styling changes with Figuelia. These are Francis's reports, not independently verified attendance or coordination records.
 
-Peer-review reference: [Victor's PR #5: reject unknown lesson IDs when saving lesson progress](https://github.com/Nyantakyi-Francis/database-tutor/pull/5). The lesson changes still need a commit, an authorized push, and teammate review before merge/deployment. This evidence does not establish completion of the whole team's Sprint 2 work.
+Peer-review reference: [Victor's PR #5: reject unknown lesson IDs when saving lesson progress](https://github.com/Nyantakyi-Francis/database-tutor/pull/5). At that checkpoint, the lesson changes still needed a commit, an authorized push, and teammate review before merge/deployment. The current integration status is recorded below. This historical evidence does not establish completion of the whole team's Sprint 2 work.
 
 ### Local verification (18 November 2026)
 
@@ -259,6 +261,43 @@ The Browser plugin/skill was not available, so Playwright CLI used temporary scr
 Completion and undo survived refresh, preserved an existing demo quiz score, and reflected changes made on Progress when returning to Lessons. Closing the browser process and reopening the same persistent profile restored all six completions and the demo score. A working SQL query and school database reset preserved lesson progress. Separate simulated blocked-storage, full-storage, and corrupt-data cases checked the expected warnings, in-memory controls, and recovery after a successful save. These simulations intentionally generate progress warnings.
 
 Screenshots were inspected for desktop and phone layouts. Checks are local Chromium evidence; Firefox, Safari, real mobile devices, hosted Sprint 2 behavior, and live synchronization across browser tabs remain unverified. Word reports were left unchanged.
+
+## Sprint 3 acceptance record (26 November 2026)
+
+Source checked: `174385d312a391c6685894cff9bbb836127e4d6b`, the current `main` and fetched `origin/main` before this documentation edit. [Sprint integration merge](https://github.com/Nyantakyi-Francis/database-tutor/commit/110086ced39c2bf5261cd8cbc0c61cd427e58aec) brought the lesson, quiz, and progress work into main. [Latest merge](https://github.com/Nyantakyi-Francis/database-tutor/commit/174385d312a391c6685894cff9bbb836127e4d6b) includes the narrow-screen quiz-question fix. This README update is local on `docs/sprint3-closeout` and is not included in either linked commit.
+
+### Acceptance checks
+
+These are repeatable checks for C1-C5 and E1. Source inspection confirms the listed controls and data exist; it does not establish that every browser check passes.
+
+| Requirement | Check and expected result |
+| --- | --- |
+| C1: lessons | Choose each of six lessons; read its school tables, reveal/hide the answer, and use Previous/Next. Mark complete, then undo. Navigation remains available without completing earlier lessons. |
+| C2: SQL practice | Run all six reference queries and compare headings and rows with Expected results. Try a valid query with no matches and an invalid query; expect a clear empty-result message and readable error. Edit school records, then reset; original records and the selected exercise's starter query return. |
+| C3: quizzes | Take each four-question quiz. Compare all-correct, mixed, and all-incorrect scores with selected answers; inspect explanations. Submit with missing answers to check the warning and Submit anyway path. Retake one quiz; only its latest result changes. |
+| C4: progress | Complete/undo lessons and submit quizzes; check matching counts and results on Home and Progress. Refresh and restart the same browser profile and site; saved completion and latest scores return. Cancel progress reset to preserve them, then confirm reset to clear them. School reset preserves progress; progress reset preserves the current SQL database. |
+| C5: interface | At 320px, 390px, and desktop widths, visit Home, Lessons, SQL Practice, Quizzes, and Progress. Check readable text/tables, no page overflow, labelled controls, keyboard navigation, visible focus, and no application errors in the console. |
+| E1: hints | Open and close Show/Hide hint for every SQL exercise. The current query remains unchanged. Changing exercise loads that exercise's own hint and starter query. |
+
+### Demonstration steps
+
+1. Run `npm ci`, `npm run build`, and `npm run preview`. Open the URL printed by Vite in a browser where saving site data is allowed.
+2. On Lessons, choose a topic, reveal its answer, mark it complete, and demonstrate undo. Leave one lesson complete for the persistence check.
+3. On SQL Practice, choose an exercise, open its hint, edit and run the query, then compare it with Expected results. Show an empty result and a readable SQL error.
+4. On Quizzes, answer a four-question quiz and submit. Read the score and explanations. Retake it with different answers, then check the updated latest score on Progress and Home.
+5. Refresh and fully close/reopen the same browser profile at the same URL. Check the lesson completion and latest quiz score. Progress belongs to that browser and site, not to an account.
+6. Reset the school database and confirm saved progress remains. On Progress, cancel a reset first, then confirm one. Confirm lesson completions and quiz results are cleared while the SQL database is unaffected.
+7. Repeat the relevant controls by keyboard and at phone widths. For a hosted demonstration, repeat query execution and persistence at the production URL and record the deployed revision separately.
+
+### Verification and personal task status
+
+On 26 November, `npm run typecheck`, `npm run build`, and `npm test` passed on this source revision (102 tests across 8 files). The build emitted the real sql.js WASM asset. Tests cover lesson content, exercise reference results, quiz structure/scoring, storage validation/recovery, shared progress, and separation of the two resets. Store-recreation tests use in-memory storage; they do not establish a real browser restart. No browser or hosted checks were run for this documentation update.
+
+Francis confirms S3-11 (lesson integration) and S3-12 (all twelve quiz questions reviewed, plus completion/refresh/browser-restart checks) are complete. He also confirms S3-14 (planning, standup, peer review, and sprint records) is complete and reports no external blockers. These are his reported activities, not a new independent browser run. No specific peer-review PR was supplied in this confirmation.
+
+S3-13 is complete with this README update: current implementation status, acceptance checks, demonstration steps, and verification limits are documented. Its completion does not mean every acceptance check has been independently repeated today. Francis reports 4 actual hours for each task, S3-11 through S3-14: 16 actual hours against 12 estimated hours. Planned estimates remain 4, 4, 2, and 2 hours, respectively.
+
+Current limits: no browser, hosted, real-device, Firefox, or Safari checks were run on 26 November. No new UI defects were identified by source inspection, but this is not a clean browser-QA verdict. E2 progress export/import and E3 guided INNER JOIN remain outside this sprint's completed scope. Accounts, device synchronization, and full offline support remain excluded.
 
 ## Foundation verification (5 November 2026)
 
