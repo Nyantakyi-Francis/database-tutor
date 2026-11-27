@@ -5,6 +5,7 @@ import { createSchoolDatabase, executeQuery, loadSqlRuntime } from './databaseSe
 import { exercises } from './exercises'
 import ExerciseHint from '../interface/ExerciseHint'
 import QueryResults from './QueryResults'
+import PageHeading from '../interface/PageHeading'
 
 export default function SqlPracticePage() {
   const [database, setDatabase] = useState<Database | null>(null)
@@ -51,8 +52,7 @@ export default function SqlPracticePage() {
   }
 
   return <section>
-    <h1>SQL Practice</h1>
-    <p>Choose one of the six guided exercises, edit the starter query, and run it against the fictional school database.</p>
+    <PageHeading title="SQL Practice">Choose one of the six guided exercises, edit the starter query, and run it against the fictional school database.</PageHeading>
 
     <div className="exercise-controls">
       <label htmlFor="exercise-select">Guided exercise</label>

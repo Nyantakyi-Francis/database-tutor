@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { lessons } from '../lessons/lessonData'
 import { quizzes } from './quizData'
 import { useProgress } from './useProgress'
+import ProgressSummary from '../interface/ProgressSummary'
+import PageHeading from '../interface/PageHeading'
 
 export default function ProgressPage() {
   const { progress, notice, setLessonCompleted, reset } = useProgress()
@@ -21,9 +23,10 @@ export default function ProgressPage() {
     setResetClosed(true)
   }
 
-  return <section>
-    <h1>Progress</h1>
-    <p>Completed lessons and your latest quiz scores are saved in this browser.</p>
+  return <section className="progress-page">
+    <PageHeading title="Progress">Completed lessons and your latest quiz scores are saved in this browser.</PageHeading>
+    <ProgressSummary completedLessons={completedCount} totalLessons={lessons.length}
+      takenQuizzes={takenCount} totalQuizzes={quizzes.length} />
     <p className="notice" role="status">
       {notice ? <>{notice.kind === 'problem' && <strong>Warning: </strong>}{notice.text}</> : null}
     </p>
@@ -43,7 +46,7 @@ export default function ProgressPage() {
     </fieldset>
 
     <h2>Latest quiz scores ({takenCount} of {quizzes.length} taken)</h2>
-    <div className="table-scroll" tabIndex={0} role="region" aria-label="Latest quiz scores">
+    <div className="table-scroll desktop-quiz-results" tabIndex={0} role="region" aria-label="Latest quiz scores">
       <table>
         <thead><tr><th scope="col">Quiz</th><th scope="col">Latest score</th><th scope="col">Completed</th></tr></thead>
         <tbody>{quizzes.map(quiz => {
@@ -56,6 +59,16 @@ export default function ProgressPage() {
         })}</tbody>
       </table>
     </div>
+    <ul className="mobile-quiz-results" aria-label="Latest quiz scores">
+      {quizzes.map(quiz => {
+        const result = progress.latestQuizResults[quiz.id]
+        return <li key={quiz.id}>
+          <span>{quiz.title}</span>
+          <strong>{result ? `${result.score} / ${result.totalQuestions}` : 'Not taken yet'}</strong>
+          {result && <time dateTime={result.completedAt}>Completed {new Date(result.completedAt).toLocaleString()}</time>}
+        </li>
+      })}
+    </ul>
     <p><a href="#quizzes">Take or retake a quiz</a></p>
 
     <h2>Reset progress</h2>

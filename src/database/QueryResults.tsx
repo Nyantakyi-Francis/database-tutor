@@ -7,7 +7,7 @@ export default function QueryResults({ result, caption = 'Query results' }: {
   if (!result) return <p>Query results will appear here.</p>
   if (result.error) return <p role="alert">{result.error}</p>
   if (result.columns.length === 0) return <p>The statement completed without returning rows.</p>
-  return <div className="table-scroll"><table>
+  return <div className="table-scroll" tabIndex={0} role="region" aria-label={caption}><table>
     <caption>{caption}</caption>
     <thead><tr>{result.columns.map((column, index) => <th scope="col" key={index}>{column}</th>)}</tr></thead>
     <tbody>{result.rows.length === 0
